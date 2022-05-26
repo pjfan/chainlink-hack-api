@@ -14,52 +14,54 @@ export const getPastSixMo = async (chain: MoralisChainOptions, address: string, 
 };
 
 export const getHistory = async (chain: MoralisChainOptions, address: string) => {
-  return await moralis.Web3API.account.getTransactions({chain: chain, address: address});
+  let history = await moralis.Web3API.account.getTransactions({chain: chain, address: address});
+  if (history?.['total'] && history?.['page_size'] && history?.['total'] !== 0) {
+    if (history?.['total'] > history?.['page_size']){
+      const offset: number = history?.['total'] - (history?.['total'] % history?.['page_size']);
+      console.log("Total transactions (" + history?.['total'] + ") greater than page size (" + history?.['page_size'] + "). Getting last page using offset of: " + offset);
+      history = await moralis.Web3API.account.getTransactions({chain: chain, address: address, offset: offset});
+      console.log("Getting last page (page " + history?.['page'] + ") of transactions.");
+    }
+  }
+  return history;
 };
 
 
 export const getActivityInfo = async (chain: MoralisChainOptions, address: string): Promise<ActivityInfo | undefined> => {
-    const today: string = moment().format();
-    const sixMonthsAgo: string = moment().subtract(6, 'months').format();
+  // Get past 6 months of transactions for address on chain  
+  const today: string = moment().format();
+  const sixMonthsAgo: string = moment().subtract(6, 'months').format();
+  const pastSixMo = await getPastSixMo(chain, address, sixMonthsAgo, today);
+  if (pastSixMo === undefined || pastSixMo?.result?.length === 0) return;
 
-    const pastSixMo = await getPastSixMo(chain, address, sixMonthsAgo, today);
+  let numTransactionsPastSixMo: number | undefined = pastSixMo?.['total'];
+  if (numTransactionsPastSixMo === undefined) {
+    numTransactionsPastSixMo = 1;
+  }
+  const transactionsPerMonth: number = numTransactionsPastSixMo / 6;
+  const activeBuyerSeller: boolean = transactionsPerMonth > 2;
 
-    if (pastSixMo === undefined || pastSixMo?.result?.length === 0) return;
+  //
+  const history = await getHistory(chain, address);
+  if (history !== undefined && history?.result !== undefined) {
+    const firstTransaction = history.result[history.result.length - 1];
+    if (firstTransaction === undefined) return;
 
-    let numTransactionsPastSixMo: number | undefined = pastSixMo?.['total'];
-    if (numTransactionsPastSixMo === undefined) {
-      numTransactionsPastSixMo = 1;
-    }
+    const firstTransactionTimestamp: moment.Moment = moment(firstTransaction['block_timestamp']);
+    const monthsSinceFirstTransaction: number = moment().diff(firstTransactionTimestamp, 'months'); // off by 1
+    const existedLongEnough: boolean = monthsSinceFirstTransaction >= 6;
+    const userIsActive: boolean = existedLongEnough && activeBuyerSeller;
 
-    const transactionsPerMonth: number = numTransactionsPastSixMo / 6;
-    const activeBuyerSeller: boolean = transactionsPerMonth > 2;
+    const activityInfoResult: ActivityInfo = {
+      transactionsPerMonth: transactionsPerMonth,
+      activeBuyerSeller: activeBuyerSeller,
+      monthsSinceFirstTransaction: monthsSinceFirstTransaction,
+      existedLongEnough: existedLongEnough,
+      userIsActive: userIsActive,
+    };
 
-    const history = await getHistory(chain, address);
-    let numAllTransactions: number | undefined = history?.['total'];
-    if (numAllTransactions === undefined) {
-      numAllTransactions = 1;
-    }
+    console.log(activityInfoResult);
 
-    if (history !== undefined && history?.result !== undefined) {
-      const result = history.result;
-      const firstTransaction = history.result[numAllTransactions - 1];
-      if (firstTransaction === undefined) return;
-
-      const firstTransactionTimestamp: moment.Moment = moment(firstTransaction['block_timestamp']);
-      const monthsSinceFirstTransaction: number = moment().diff(firstTransactionTimestamp, 'months'); // off by 1
-      const existedLongEnough: boolean = monthsSinceFirstTransaction >= 6;
-      const userIsActive: boolean = existedLongEnough && activeBuyerSeller;
-
-      const activityInfoResult: ActivityInfo = {
-        transactionsPerMonth: transactionsPerMonth,
-        activeBuyerSeller: activeBuyerSeller,
-        monthsSinceFirstTransaction: monthsSinceFirstTransaction,
-        existedLongEnough: existedLongEnough,
-        userIsActive: userIsActive,
-      };
-
-      console.log(activityInfoResult);
-
-      return activityInfoResult;
-    }
-  };
+    return activityInfoResult;
+  }
+};
