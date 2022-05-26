@@ -11,7 +11,7 @@ moralis.start({ serverUrl: MORALIS_SERVER_URL, appId: MORALIS_APP_ID });
 
 
 // function to get avg txns per month for past six months of history
-export const getAvgTxnsPastSixMo = async (chain: MoralisChainOptions, address: string): Promise<number> => {
+export const getAvgTxnsPastSixMonths = async (chain: MoralisChainOptions, address: string): Promise<number> => {
   const toDate: string = moment().format();
   const fromDate: string = moment().subtract(6, 'months').format(); 
   const pastSixMonthsTxns = await moralis.Web3API.account.getTransactions({chain: chain, address: address, from_date: fromDate, to_date: toDate});
@@ -69,7 +69,7 @@ export const getReputationScore = async (chain: MoralisChainOptions, address: st
     console.log("ageScore is: " + ageScore);
 
     // determine avg number of transactions in last 6 months (50% of score)
-    const avgTxnsSixMonths: number = await getAvgTxnsPastSixMo(chain, address);
+    const avgTxnsSixMonths: number = await getAvgTxnsPastSixMonths(chain, address);
     const avgTxnsSixMonthsScore: number = 5 - (1.07**(-avgTxnsSixMonths))*5;
     console.log("avgTxnsSixMonths: " + avgTxnsSixMonths);
     console.log("avgTxnsSixMonthsScore is: " + avgTxnsSixMonthsScore);
