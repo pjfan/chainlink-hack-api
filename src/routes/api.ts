@@ -1,8 +1,8 @@
 import express, { Request, Response, Router} from 'express';
 import { getTokenBalances } from '../functions/erc20Integration';
 import { getActivityInfo } from '../functions/activityIntegration';
+import { getReputationScore } from '../functions/reputationScoreIntegration';
 import { WalletBalance, MoralisChainOptions } from '../utils/types';
-import { json } from 'stream/consumers';
 
 // setup express Router
 const router: Router = express.Router();
@@ -14,9 +14,12 @@ router.get('/', function(req: Request, res: Response): Response {
     });
 });
 
-router.get('/reputation/:chain/:address', function(req: Request, res: Response): Response {
+router.get('/reputation/:chain/:address', async function(req: Request, res: Response): Promise<Response> {
+  const address: string = req.params.address;
+  const chain: MoralisChainOptions = <MoralisChainOptions>req.params.chain;
+  const reputationScore: number | null = await getReputationScore(chain, address);
   const reputation = {
-    "reputation": "",
+    "reputation": reputationScore,
   };
   return res.json(reputation);
 });

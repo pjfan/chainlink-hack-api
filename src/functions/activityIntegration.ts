@@ -1,7 +1,7 @@
 import { ActivityInfo, MoralisChainOptions } from '../utils/types';
 import moralis from 'moralis/node';
 import moment from 'moment';
-import 'dotenv/config'
+import 'dotenv/config';
 
 // Load moralis SDK
 const MORALIS_SERVER_URL: string = process.env.MORALIS_SERVER_URL || "";

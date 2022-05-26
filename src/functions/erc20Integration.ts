@@ -1,6 +1,6 @@
 import { WalletBalance, TokenBalance, MoralisChainOptions } from '../utils/types';
 import moralis from 'moralis/node';
-import 'dotenv/config'
+import 'dotenv/config';
 
 // Load moralis SDK
 const MORALIS_SERVER_URL: string = process.env.MORALIS_SERVER_URL || "";
