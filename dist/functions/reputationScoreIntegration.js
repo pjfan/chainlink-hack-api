@@ -32,7 +32,7 @@ const getAvgTxnsPastSixMonths = (chain, address) => __awaiter(void 0, void 0, vo
     });
     // pastSixMonthsTxns?.['total'] is total number of transactions over past 6 months
     if ((pastSixMonthsTxns === null || pastSixMonthsTxns === void 0 ? void 0 : pastSixMonthsTxns['total']) === undefined) {
-        return null;
+        return 0;
     }
     else {
         return (pastSixMonthsTxns === null || pastSixMonthsTxns === void 0 ? void 0 : pastSixMonthsTxns['total']) / 6;
@@ -48,11 +48,8 @@ const getAccountAgeMonths = (chain, address) => __awaiter(void 0, void 0, void 0
         console.log(err);
         return null;
     });
-    if ((allTxns === null || allTxns === void 0 ? void 0 : allTxns['total']) !== 0) {
-        return 0;
-    }
-    // return null if allTxns undefined
-    if ((allTxns === null || allTxns === void 0 ? void 0 : allTxns['total']) && (allTxns === null || allTxns === void 0 ? void 0 : allTxns['page_size'])) {
+    // return 0 if no txn history on-chain
+    if ((allTxns === null || allTxns === void 0 ? void 0 : allTxns['total']) && (allTxns === null || allTxns === void 0 ? void 0 : allTxns['page_size']) && (allTxns === null || allTxns === void 0 ? void 0 : allTxns['total']) !== 0) {
         // get last "page" of transactions if transaction history spans multiple pages
         if ((allTxns === null || allTxns === void 0 ? void 0 : allTxns['total']) > (allTxns === null || allTxns === void 0 ? void 0 : allTxns['page_size'])) {
             const offset = (allTxns === null || allTxns === void 0 ? void 0 : allTxns['total']) - ((allTxns === null || allTxns === void 0 ? void 0 : allTxns['total']) % (allTxns === null || allTxns === void 0 ? void 0 : allTxns['page_size']));
@@ -67,43 +64,38 @@ const getAccountAgeMonths = (chain, address) => __awaiter(void 0, void 0, void 0
         }
     }
     else {
-        return null;
+        return 0;
     }
     // calculate age of address using months since first transaction
     // return 0 if any required parameters are 0
     if (allTxns !== undefined && (allTxns === null || allTxns === void 0 ? void 0 : allTxns.result) !== undefined) {
         const firstTxn = allTxns.result[allTxns.result.length - 1];
         if (firstTxn === undefined) {
-            return null;
+            return 0;
         }
         console.log("Timestamp of first transaction: " + (0, moment_1.default)(firstTxn['block_timestamp']).toString());
         const monthsSinceFirstTxn = (0, moment_1.default)().diff((0, moment_1.default)(firstTxn['block_timestamp']), 'months'); // off by 1
         return monthsSinceFirstTxn;
     }
     else {
-        return null;
+        return 0;
     }
 });
 exports.getAccountAgeMonths = getAccountAgeMonths;
 const getReputationScore = (chain, address) => __awaiter(void 0, void 0, void 0, function* () {
+    // determine age score for this account (50% of score)
     const monthsSinceFirstTxn = yield (0, exports.getAccountAgeMonths)(chain, address);
+    const ageScore = 5 - (1.05 ** (-monthsSinceFirstTxn)) * 5;
+    console.log("monthsSinceFirstTxn: " + monthsSinceFirstTxn);
+    console.log("ageScore is: " + ageScore);
+    // determine avg number of transactions in last 6 months (50% of score)
     const avgTxnsSixMonths = yield (0, exports.getAvgTxnsPastSixMonths)(chain, address);
-    if (monthsSinceFirstTxn && avgTxnsSixMonths) {
-        // determine age score for this account (50% of score)
-        const ageScore = 5 - (1.05 ** (-monthsSinceFirstTxn)) * 5;
-        console.log("monthsSinceFirstTxn: " + monthsSinceFirstTxn);
-        console.log("ageScore is: " + ageScore);
-        // determine avg number of transactions in last 6 months (50% of score)
-        const avgTxnsSixMonthsScore = 5 - (1.07 ** (-avgTxnsSixMonths)) * 5;
-        console.log("avgTxnsSixMonths: " + avgTxnsSixMonths);
-        console.log("avgTxnsSixMonthsScore is: " + avgTxnsSixMonthsScore);
-        // calculate reputation score
-        const reputationScore = ageScore + avgTxnsSixMonthsScore;
-        console.log("Reputation Score is: " + reputationScore);
-        return reputationScore;
-    }
-    else {
-        return null;
-    }
+    const avgTxnsSixMonthsScore = 5 - (1.07 ** (-avgTxnsSixMonths)) * 5;
+    console.log("avgTxnsSixMonths: " + avgTxnsSixMonths);
+    console.log("avgTxnsSixMonthsScore is: " + avgTxnsSixMonthsScore);
+    // calculate reputation score
+    const reputationScore = ageScore + avgTxnsSixMonthsScore;
+    console.log("Reputation Score is: " + reputationScore);
+    return reputationScore;
 });
 exports.getReputationScore = getReputationScore;
