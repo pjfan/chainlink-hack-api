@@ -11,7 +11,7 @@ const router: Router = express.Router();
 /* GET api root */
 router.get('/', function(req: Request, res: Response): Response {
   return res.json({
-      "apiEndPoints": "/api/reputation/:chain/:address, /api/erc20/:chain/:address, /api/DID/:chain/:address, /api/follow_metrics/:chain/:address, /api/address_history/:chain/:address, /api/profile/:chain/:address"
+      "apiEndPoints": "/api/reputation/:chain/:address, /api/erc20/:chain/:address, /api/nft/:chain/:address, /api/poap/:chain/:address, /api/address_history/:chain/:address"
     });
 });
 
