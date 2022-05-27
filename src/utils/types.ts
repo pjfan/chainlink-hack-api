@@ -26,6 +26,14 @@ export interface ActivityInfo {
   userIsActive: boolean;
 }
 
+export interface NFTMetadata {
+  name: string,
+  imageUrl: string,
+  openSeaUrl: string,
+  tokenAddress: string,
+  description: string
+}
+
 export type MoralisChainOptions =
   | 'eth'
   | '0x1'

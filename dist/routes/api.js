@@ -17,6 +17,7 @@ const express_1 = __importDefault(require("express"));
 const erc20Integration_1 = require("../functions/erc20Integration");
 const activityIntegration_1 = require("../functions/activityIntegration");
 const reputationScoreIntegration_1 = require("../functions/reputationScoreIntegration");
+const nftpoapIntegration_1 = require("../functions/nftpoapIntegration");
 // setup express Router
 const router = express_1.default.Router();
 /* GET api root */
@@ -56,20 +57,6 @@ router.get('/erc20/:chain/:address', function (req, res) {
         return res.json(erc20);
     });
 });
-router.get('/DID/:chain/:address', function (req, res) {
-    const did = {
-        "did": "",
-    };
-    return res.json(did);
-});
-router.get('/follow_metrics/:chain/:address', function (req, res) {
-    const followMetrics = {
-        "followCount": "",
-        "totalValueFollowers": "",
-        "followingCount": ""
-    };
-    return res.json(followMetrics);
-});
 router.get('/address_history/:chain/:address', function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const address = req.params.address;
@@ -85,6 +72,22 @@ router.get('/address_history/:chain/:address', function (req, res) {
         return res.json(addressHistory);
     });
 });
+router.get('/nft/:chain/:address', function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const address = req.params.address;
+        const chain = req.params.chain;
+        const nfts = yield (0, nftpoapIntegration_1.getNFTs)(address, chain, false);
+        return res.json(nfts);
+    });
+});
+router.get('/poap/:chain/:address', function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const address = req.params.address;
+        const chain = req.params.chain;
+        const poaps = yield (0, nftpoapIntegration_1.getNFTs)(address, chain, true);
+        return res.json(poaps);
+    });
+});
 router.get('/profile/:chain/:address', function (req, res) {
     const profile = {
         "name": "",
@@ -92,5 +95,19 @@ router.get('/profile/:chain/:address', function (req, res) {
         "profilePhoto": ""
     };
     return res.json(profile);
+});
+router.get('/DID/:chain/:address', function (req, res) {
+    const did = {
+        "did": "",
+    };
+    return res.json(did);
+});
+router.get('/follow_metrics/:chain/:address', function (req, res) {
+    const followMetrics = {
+        "followCount": "",
+        "totalValueFollowers": "",
+        "followingCount": ""
+    };
+    return res.json(followMetrics);
 });
 exports.apiRouter = router;

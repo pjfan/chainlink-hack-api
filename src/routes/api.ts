@@ -2,7 +2,8 @@ import express, { Request, Response, Router} from 'express';
 import { getTokenBalances } from '../functions/erc20Integration';
 import { getActivityInfo } from '../functions/activityIntegration';
 import { getReputationScore } from '../functions/reputationScoreIntegration';
-import { WalletBalance, MoralisChainOptions } from '../utils/types';
+import { WalletBalance, MoralisChainOptions, NFTMetadata } from '../utils/types';
+import { getNFTs } from '../functions/nftpoapIntegration';
 
 // setup express Router
 const router: Router = express.Router();
@@ -43,6 +44,43 @@ router.get('/erc20/:chain/:address', async function(req: Request, res: Response)
   return res.json(erc20);
 });
 
+router.get('/address_history/:chain/:address', async function(req: Request, res: Response): Promise<Response> {
+  const address: string = req.params.address;
+  const chain: MoralisChainOptions = <MoralisChainOptions>req.params.chain;
+  const activityInfo = await getActivityInfo(chain, address);
+  const addressHistory = {
+    "txnPerMonth": activityInfo?.transactionsPerMonth,
+    "activeBuyerSeller": activityInfo?.activeBuyerSeller,
+    "monthsSinceFirstTxn": activityInfo?.monthsSinceFirstTransaction,
+    "existedLongEnough": activityInfo?.existedLongEnough,
+    "userIsActive": activityInfo?.userIsActive,
+  };
+  return res.json(addressHistory);
+});
+
+router.get('/nft/:chain/:address', async function(req: Request, res: Response): Promise<Response> {
+  const address: string = req.params.address;
+  const chain: MoralisChainOptions = <MoralisChainOptions>req.params.chain;
+  const nfts: NFTMetadata[] | null = await getNFTs(address, chain, false);
+  return res.json(nfts);
+});
+
+router.get('/poap/:chain/:address', async function(req: Request, res: Response): Promise<Response> {
+  const address: string = req.params.address;
+  const chain: MoralisChainOptions = <MoralisChainOptions>req.params.chain;
+  const poaps: NFTMetadata[] | null = await getNFTs(address, chain, true);
+  return res.json(poaps);
+});
+
+router.get('/profile/:chain/:address', function(req: Request, res: Response): Response {
+  const profile = {
+    "name": "",
+    "description": "",
+    "profilePhoto": ""
+  };
+  return res.json(profile);
+});
+
 router.get('/DID/:chain/:address', function(req: Request, res: Response): Response {
   const did = {
     "did": "",
@@ -58,29 +96,5 @@ router.get('/follow_metrics/:chain/:address', function(req: Request, res: Respon
   };
   return res.json(followMetrics);
 });
-
-router.get('/address_history/:chain/:address', async function(req: Request, res: Response): Promise<Response> {
-  const address: string = req.params.address;
-  const chain: MoralisChainOptions = <MoralisChainOptions>req.params.chain;
-  const activityInfo = await getActivityInfo(chain, address);
-  const addressHistory = {
-    "txnPerMonth": activityInfo?.transactionsPerMonth,
-    "activeBuyerSeller": activityInfo?.activeBuyerSeller,
-    "monthsSinceFirstTxn": activityInfo?.monthsSinceFirstTransaction,
-    "existedLongEnough": activityInfo?.existedLongEnough,
-    "userIsActive": activityInfo?.userIsActive,
-  };
-  return res.json(addressHistory);
-});
-
-router.get('/profile/:chain/:address', function(req: Request, res: Response): Response {
-  const profile = {
-    "name": "",
-    "description": "",
-    "profilePhoto": ""
-  };
-  return res.json(profile);
-});
-
 
 export const apiRouter: Router = router;
