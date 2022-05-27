@@ -10,16 +10,31 @@ moralis.start({ serverUrl: MORALIS_SERVER_URL, appId: MORALIS_APP_ID });
 
 
 export const getPastSixMo = async (chain: MoralisChainOptions, address: string, from_date: string, to_date: string) => {
-  return await moralis.Web3API.account.getTransactions({chain: chain, address: address, from_date: from_date, to_date: to_date});
+  return await moralis.Web3API.account
+    .getTransactions({chain: chain, address: address, from_date: from_date, to_date: to_date})
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
 };
 
 export const getHistory = async (chain: MoralisChainOptions, address: string) => {
-  let history = await moralis.Web3API.account.getTransactions({chain: chain, address: address});
+  let history = await moralis.Web3API.account
+    .getTransactions({chain: chain, address: address})
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
   if (history?.['total'] && history?.['page_size'] && history?.['total'] !== 0) {
     if (history?.['total'] > history?.['page_size']){
       const offset: number = history?.['total'] - (history?.['total'] % history?.['page_size']);
       console.log("Total transactions (" + history?.['total'] + ") greater than page size (" + history?.['page_size'] + "). Getting last page using offset of: " + offset);
-      history = await moralis.Web3API.account.getTransactions({chain: chain, address: address, offset: offset});
+      history = await moralis.Web3API.account
+        .getTransactions({chain: chain, address: address, offset: offset})
+        .catch((err) => {
+          console.log(err);
+          return null;
+        });
       console.log("Getting last page (page " + history?.['page'] + ") of transactions.");
     }
   }

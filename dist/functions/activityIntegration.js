@@ -21,16 +21,31 @@ const MORALIS_SERVER_URL = process.env.MORALIS_SERVER_URL || "";
 const MORALIS_APP_ID = process.env.MORALIS_APP_ID || "";
 node_1.default.start({ serverUrl: MORALIS_SERVER_URL, appId: MORALIS_APP_ID });
 const getPastSixMo = (chain, address, from_date, to_date) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield node_1.default.Web3API.account.getTransactions({ chain: chain, address: address, from_date: from_date, to_date: to_date });
+    return yield node_1.default.Web3API.account
+        .getTransactions({ chain: chain, address: address, from_date: from_date, to_date: to_date })
+        .catch((err) => {
+        console.log(err);
+        return null;
+    });
 });
 exports.getPastSixMo = getPastSixMo;
 const getHistory = (chain, address) => __awaiter(void 0, void 0, void 0, function* () {
-    let history = yield node_1.default.Web3API.account.getTransactions({ chain: chain, address: address });
+    let history = yield node_1.default.Web3API.account
+        .getTransactions({ chain: chain, address: address })
+        .catch((err) => {
+        console.log(err);
+        return null;
+    });
     if ((history === null || history === void 0 ? void 0 : history['total']) && (history === null || history === void 0 ? void 0 : history['page_size']) && (history === null || history === void 0 ? void 0 : history['total']) !== 0) {
         if ((history === null || history === void 0 ? void 0 : history['total']) > (history === null || history === void 0 ? void 0 : history['page_size'])) {
             const offset = (history === null || history === void 0 ? void 0 : history['total']) - ((history === null || history === void 0 ? void 0 : history['total']) % (history === null || history === void 0 ? void 0 : history['page_size']));
             console.log("Total transactions (" + (history === null || history === void 0 ? void 0 : history['total']) + ") greater than page size (" + (history === null || history === void 0 ? void 0 : history['page_size']) + "). Getting last page using offset of: " + offset);
-            history = yield node_1.default.Web3API.account.getTransactions({ chain: chain, address: address, offset: offset });
+            history = yield node_1.default.Web3API.account
+                .getTransactions({ chain: chain, address: address, offset: offset })
+                .catch((err) => {
+                console.log(err);
+                return null;
+            });
             console.log("Getting last page (page " + (history === null || history === void 0 ? void 0 : history['page']) + ") of transactions.");
         }
     }

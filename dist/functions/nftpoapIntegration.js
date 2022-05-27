@@ -21,7 +21,12 @@ const MORALIS_APP_ID = process.env.MORALIS_APP_ID || "";
 node_1.default.start({ serverUrl: MORALIS_SERVER_URL, appId: MORALIS_APP_ID });
 const getNFTs = (address, chain, onlyPoaps) => __awaiter(void 0, void 0, void 0, function* () {
     // fetch nfts from address
-    const res = yield node_1.default.Web3API.account.getNFTs({ address: address, chain: chain });
+    const res = yield node_1.default.Web3API.account
+        .getNFTs({ address: address, chain: chain })
+        .catch((err) => {
+        console.log(err);
+        return null;
+    });
     console.log('Fetched all user NFTs for chain: ' + chain);
     if (!(res === null || res === void 0 ? void 0 : res.result)) {
         return null;

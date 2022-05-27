@@ -11,7 +11,12 @@ moralis.start({ serverUrl: MORALIS_SERVER_URL, appId: MORALIS_APP_ID });
 
 export const getNFTs = async (address: string, chain: MoralisChainOptions, onlyPoaps: boolean): Promise<NFTMetadata[] | null> => {
     // fetch nfts from address
-    const res = await moralis.Web3API.account.getNFTs({ address: address, chain: chain });
+    const res = await moralis.Web3API.account
+      .getNFTs({ address: address, chain: chain })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
     console.log('Fetched all user NFTs for chain: ' + chain);
     
     if (!res?.result) {

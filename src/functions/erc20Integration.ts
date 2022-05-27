@@ -23,7 +23,12 @@ export const getTokenPrice = async (inputToken: TokenBalance, chain: MoralisChai
 
 export const getTokenBalances = async (address: string, chain: MoralisChainOptions): Promise<WalletBalance[] | null> => {
     // fetch token balance from address
-    const tokens: TokenBalance[] | null = await moralis.Web3API.account.getTokenBalances({ address: address, chain: chain })
+    const tokens: TokenBalance[] | null = await moralis.Web3API.account
+      .getTokenBalances({ address: address, chain: chain })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
     console.log('Fetched all ERC20 balances for chain: ' + chain);
     
     if (tokens === null || tokens.length === 0)
@@ -64,7 +69,12 @@ export const getTokenBalances = async (address: string, chain: MoralisChainOptio
 
 export const getTotalValue = async (address: string, chain: MoralisChainOptions): Promise<number | null> => {
   // fetch token balance from address
-  const tokens: TokenBalance[] | null = await moralis.Web3API.account.getTokenBalances({ address: address, chain: chain })
+  const tokens: TokenBalance[] | null = await moralis.Web3API.account
+    .getTokenBalances({ address: address, chain: chain })
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
   console.log('Fetched all ERC20 balances for chain: ' + chain);
   
   if (tokens === null || tokens.length === 0)

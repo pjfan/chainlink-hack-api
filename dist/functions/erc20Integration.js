@@ -35,7 +35,12 @@ const getTokenPrice = (inputToken, chain) => __awaiter(void 0, void 0, void 0, f
 exports.getTokenPrice = getTokenPrice;
 const getTokenBalances = (address, chain) => __awaiter(void 0, void 0, void 0, function* () {
     // fetch token balance from address
-    const tokens = yield node_1.default.Web3API.account.getTokenBalances({ address: address, chain: chain });
+    const tokens = yield node_1.default.Web3API.account
+        .getTokenBalances({ address: address, chain: chain })
+        .catch((err) => {
+        console.log(err);
+        return null;
+    });
     console.log('Fetched all ERC20 balances for chain: ' + chain);
     if (tokens === null || tokens.length === 0)
         return null;
@@ -73,7 +78,12 @@ const getTokenBalances = (address, chain) => __awaiter(void 0, void 0, void 0, f
 exports.getTokenBalances = getTokenBalances;
 const getTotalValue = (address, chain) => __awaiter(void 0, void 0, void 0, function* () {
     // fetch token balance from address
-    const tokens = yield node_1.default.Web3API.account.getTokenBalances({ address: address, chain: chain });
+    const tokens = yield node_1.default.Web3API.account
+        .getTokenBalances({ address: address, chain: chain })
+        .catch((err) => {
+        console.log(err);
+        return null;
+    });
     console.log('Fetched all ERC20 balances for chain: ' + chain);
     if (tokens === null || tokens.length === 0)
         return null;
