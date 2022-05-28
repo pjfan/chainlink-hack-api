@@ -12,7 +12,7 @@ app.use(express_1.default.urlencoded({ extended: false }));
 app.use('/api', api_1.apiRouter);
 app.get('/', function (req, res) {
     return res.json({
-        "desc": "Chainlink Hackathon Spring 2022 API"
+        "desc": "Web3 ReputationOracle API. (API portion of project for Chainlink Hackathon Spring 2022)"
     });
 });
 app.listen(port, () => {
