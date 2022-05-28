@@ -10,7 +10,7 @@ app.use('/api', apiRouter)
 
 app.get('/', function(req: Request, res: Response): Response {
     return res.json({
-        "desc": "Chainlink Hackathon Spring 2022 API"
+        "desc": "Web3 ReputationOracle API. (API portion of project for Chainlink Hackathon Spring 2022)"
     });
 });
 
