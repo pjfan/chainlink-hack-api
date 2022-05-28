@@ -23,7 +23,7 @@ const router = express_1.default.Router();
 /* GET api root */
 router.get('/', function (req, res) {
     return res.json({
-        "apiEndPoints": "/api/reputation/:chain/:address, /api/erc20/:chain/:address, /api/DID/:chain/:address, /api/follow_metrics/:chain/:address, /api/address_history/:chain/:address, /api/profile/:chain/:address"
+        "apiEndPoints": "/api/reputation/:chain/:address, /api/erc20/:chain/:address, /api/nft/:chain/:address, /api/poap/:chain/:address, /api/address_history/:chain/:address"
     });
 });
 router.get('/reputation/:chain/:address', function (req, res) {
@@ -42,17 +42,17 @@ router.get('/erc20/:chain/:address', function (req, res) {
         const address = req.params.address;
         const chain = req.params.chain;
         const tokenBalances = yield (0, erc20Integration_1.getTokenBalances)(address, chain);
-        const totalValueUsd = tokenBalances === null || tokenBalances === void 0 ? void 0 : tokenBalances.reduce((sum, current) => {
-            if (current.value) {
-                return sum + current.value;
-            }
-            else {
-                return sum;
-            }
-        }, 0);
+        // const totalValueUsd: number | undefined = tokenBalances?.reduce((sum, current) => {
+        //     if (current.value) {
+        //       return sum + current.value;
+        //     }
+        //     else{
+        //       return sum;    
+        //     }
+        //   }, 0);
         const erc20 = {
             "tokenBalances": tokenBalances,
-            "totalValueUsd": totalValueUsd,
+            // "totalValueUsd": totalValueUsd, 
         };
         return res.json(erc20);
     });

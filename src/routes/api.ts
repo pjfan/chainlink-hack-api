@@ -29,17 +29,17 @@ router.get('/erc20/:chain/:address', async function(req: Request, res: Response)
   const address: string = req.params.address;
   const chain: MoralisChainOptions = <MoralisChainOptions>req.params.chain;
   const tokenBalances: WalletBalance[] | null = await getTokenBalances(address, chain);
-  const totalValueUsd: number | undefined = tokenBalances?.reduce((sum, current) => {
-      if (current.value) {
-        return sum + current.value;
-      }
-      else{
-        return sum;    
-      }
-    }, 0);
+  // const totalValueUsd: number | undefined = tokenBalances?.reduce((sum, current) => {
+  //     if (current.value) {
+  //       return sum + current.value;
+  //     }
+  //     else{
+  //       return sum;    
+  //     }
+  //   }, 0);
   const erc20 = {
     "tokenBalances": tokenBalances,
-    "totalValueUsd": totalValueUsd, 
+    // "totalValueUsd": totalValueUsd, 
   };
   return res.json(erc20);
 });
